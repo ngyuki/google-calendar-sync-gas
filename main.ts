@@ -9,7 +9,7 @@ function main() {
 
     const calendar = CalendarApp.getCalendarById(calendarId);
 
-    const events = mappingCalendarEventsByEventId(calendar.getEvents(start, end));
+    const { events, dups } = mappingCalendarEventsByEventId(calendar.getEvents(start, nextDay(end)));
     console.log(`fetch ${Object.keys(events).length} calendar events`);
 
     const ids = Array.from(new Set([...Object.keys(items), ...Object.keys(events)]));
@@ -48,6 +48,16 @@ function main() {
             }
         }
     }
+    for (const event of dups) {
+        console.log(`delete: ${formatEvent(event)}`);
+        event.deleteEvent();
+    }
+}
+
+function nextDay(d: Date): Date {
+    const ret = new Date(d.valueOf());
+    ret.setDate(d.getDate() + 1);
+    return ret;
 }
 
 function fetchScriptProperties() {
@@ -110,14 +120,19 @@ function mappingJsonByEventId(res: JsonResponse) {
 
 function mappingCalendarEventsByEventId(events: CalendarEvent[]) {
     const ret: { [K: string]: CalendarEvent } = {};
+    const dups: CalendarEvent[] = [];
     for (const ev of events) {
         const gid = ev.getTag(TAGNAME);
-        if (!gid || ret[gid]) {
+        if (!gid) {
+            continue;
+        }
+        if (ret[gid]) {
+            dups.push(ev);
             continue;
         }
         ret[gid] = ev;
     }
-    return ret;
+    return { events: ret, dups };
 }
 
 function compareItem(item: JsonItem, event: CalendarEvent){

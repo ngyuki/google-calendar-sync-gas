@@ -33,3 +33,23 @@ JSON ファイルは次の形式です。
     ]
 }
 ```
+
+## Google Apps Script への設定
+
+```sh
+# Apps Script のプロジェクトを作成
+clasp create --type standalone --rootDir . --title gss-work-sync
+
+# コードをプロジェクトへ反映
+clasp push
+
+# プロジェクトのページを開く
+clasp open
+
+# プロジェクトのページで・・
+#
+#   - スクリプトプロパティを設定
+#   - コードを選択して実行→ログ確認
+#   - トリガを登録
+#
+```
